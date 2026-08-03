@@ -119,6 +119,26 @@ mvn package
 编译成功后，将 `target/gnu-java-utils-library-1.0.0.jar` 放入项目依赖中。</br>
 或者在releases中下载最新版jar包，放入项目依赖中。
 
+#### 使用示例
+
+**pom.xml**
+```xml
+<dependencies>
+	<!-- 引入本地依赖，lib/gnu_java_utils_library-1.0-SNAPSHOT.jar -->
+    <dependency>
+        <groupId>top.gtb520.java.gnu</groupId>
+        <artifactId>gnu_java_utils_library</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>system</scope>
+		<!-- ${project.basedir} 为项目目录， /lib/ 为lib目录，xxxx.jar 依赖的Jar包-->
+        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.0-SNAPSHOT.jar</systemPath>
+    </dependency>
+</dependencies>
+```
+
+
+
+
 ## 异常处理
 
 压缩/解压方法在以下情况会抛出 `IllegalArgumentException`：
