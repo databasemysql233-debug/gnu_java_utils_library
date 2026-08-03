@@ -8,13 +8,35 @@ public class echo {
     // 终端彩色打印
 
     /**
-     * 使用自定义十六进制颜色码在终端打印彩色文本
+     * 使用自定义颜色码在终端打印彩色文本
+     * 支持三种格式：
+     *   - "#RRGGBB" 十六进制颜色（如 "#FFC0CB"）
+     *   - ANSI 颜色代码（如 "31" 表示红色）
+     *   - ANSI 扩展色（如 "38;5;208" 表示扩展色）
      *
      * @param Message   要打印的文本内容
-     * @param HexColor  ANSI 颜色代码（如 "31" 表示红色，"38;5;208" 表示扩展色）
+     * @param HexColor  颜色代码，支持 "#RRGGBB"、ANSI 颜色代码或扩展色
      */
     public static void ColorHexPrintln(String Message, String HexColor) {
-        System.out.println("\033[" + HexColor + "m" + Message + "\033[0m");
+        if (HexColor.startsWith("#") && (HexColor.length() == 7 || HexColor.length() == 4)) {
+            // #RRGGBB 或 #RGB 格式，转换为 ANSI 真彩色序列
+            String hex = HexColor.substring(1);
+            int r, g, b;
+            if (hex.length() == 3) {
+                // #RGB 简写格式，将每个字符扩展为两位（如 F -> FF）
+                r = Integer.parseInt(String.valueOf(hex.charAt(0)), 16) * 17;
+                g = Integer.parseInt(String.valueOf(hex.charAt(1)), 16) * 17;
+                b = Integer.parseInt(String.valueOf(hex.charAt(2)), 16) * 17;
+            } else {
+                r = Integer.parseInt(hex.substring(0, 2), 16);
+                g = Integer.parseInt(hex.substring(2, 4), 16);
+                b = Integer.parseInt(hex.substring(4, 6), 16);
+            }
+            System.out.println("\033[38;2;" + r + ";" + g + ";" + b + "m" + Message + "\033[0m");
+        } else {
+            // 原有 ANSI 颜色代码直接拼接
+            System.out.println("\033[" + HexColor + "m" + Message + "\033[0m");
+        }
     }
 
     /**
