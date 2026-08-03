@@ -120,4 +120,6 @@ mvn compile
 
 ## 许可证
 
-本项目仅供学习与个人使用。
+Apache License 2.0
+
+禁止商业用途
