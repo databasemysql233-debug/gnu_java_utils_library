@@ -110,6 +110,14 @@ main.echo.ColorHexPrintln("自定义颜色", "31");
 ```bash
 mvn compile
 ```
+或
+```bash
+mvn package
+```
+
+## 使用
+编译成功后，将 `target/gnu-java-utils-library-1.0.0.jar` 放入项目依赖中。
+或者在releases中下载最新版jar包，放入项目依赖中。
 
 ## 异常处理
 
