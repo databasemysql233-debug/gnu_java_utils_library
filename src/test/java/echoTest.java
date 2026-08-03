@@ -21,8 +21,11 @@ public class echoTest {
 
         // 测试预定义颜色枚举
         main.echo.Println("枚举红色", ColorNameEnum.RED);
+        main.echo.Println("枚举蓝色", ColorNameEnum.BLUE);
         main.echo.Println("枚举绿色", ColorNameEnum.GREEN);
         main.echo.Println("枚举黄色", ColorNameEnum.YELLOW);
+        main.echo.Println("枚举青色", ColorNameEnum.CYAN);
+        main.echo.Println("枚举紫色", ColorNameEnum.PURPLE);
 
         System.out.println("========== echo 测试完成 ==========");
     }
