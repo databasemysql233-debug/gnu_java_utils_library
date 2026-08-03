@@ -14,6 +14,16 @@ public interface main {
         static void TarGz(String sourceFilePanth, String destFilePanth) throws Exception {
             top.gtb520.java.gnu.java.utils.library.utils.compress.compress.MakeTarGz(sourceFilePanth, destFilePanth);
         }
+
+        // 压缩文件或目录为Zip压缩包
+        static void MakeZip(String sourceFilePanth, String destFilePanth) throws Exception {
+            top.gtb520.java.gnu.java.utils.library.utils.compress.compress.MakeZip(sourceFilePanth, destFilePanth);
+        }
+
+        // 解压Zip压缩包
+        static void UnZip(String sourceFilePanth, String destFilePanth) throws Exception {
+            top.gtb520.java.gnu.java.utils.library.utils.compress.compress.UnZip(sourceFilePanth, destFilePanth);
+        }
     }
 
     // 终端打印接口与方法
