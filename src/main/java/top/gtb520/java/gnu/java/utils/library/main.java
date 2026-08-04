@@ -1,6 +1,7 @@
 package top.gtb520.java.gnu.java.utils.library;
 
 import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
+import top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults;
 
 public interface main {
     // 压缩包操作相关接口与方法
@@ -36,6 +37,13 @@ public interface main {
         // 使用自定义十六进制颜色码在终端打印彩色文本
         static void ColorHexPrintln(String Message, String ColorCode) {
             top.gtb520.java.gnu.java.utils.library.utils.print.echo.ColorHexPrintln(Message, ColorCode);
+        }
+    }
+
+    // 随机数生成接口与方法
+    interface random {
+        static int defaule(int start_scope, int end_scope) {
+            return defaults.random(start_scope, end_scope);
         }
     }
 }

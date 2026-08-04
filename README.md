@@ -119,7 +119,7 @@ mvn package
 编译成功后，将 `target/gnu-java-utils-library-1.0.0.jar` 放入项目依赖中。</br>
 或者在releases中下载最新版jar包，放入项目依赖中。
 
-#### 使用示例
+#### 使用示例：
 
 **pom.xml**
 ```xml
