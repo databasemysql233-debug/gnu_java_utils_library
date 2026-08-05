@@ -105,6 +105,43 @@ main.echo.Println("警告信息", ColorNameEnum.YELLOW);
 main.echo.ColorHexPrintln("自定义颜色", "31");
 ```
 
+### 3. 随机生成器 (`random`)
+
+随机生成器，提供生成随机字符串、数字、UUID 等功能。
+
+| 方法 | 说明 | 参数                              |
+|------|------|---------------------------------|
+| `processing.random.defaults.random(start_scope, end_scope)` | 根据输入的范围生成随机数 | `start_scope` 起始数，`end_scope` 结束数 |
+| `processing.random.defaults.randomString(int length)` | 生成指定长度的随机字符串 | `length` 字符串长度 |
+
+**使用示例：**
+
+```java
+package top.gtb520.java.gnu.java.utils.library.utils.processing.random;
+
+defaults.random(1, 100);
+defaults.randomString(10);
+ ```
+
+### 4. HWID生成
+
+HWID生成器，提供生成硬件ID的功能。
+
+| 方法                                                                                    | 说明     | 参数 |
+|---------------------------------------------------------------------------------------|--------|---|
+| `processing.hwid.getHWID.generateHWID()` | 生成HWID | 无 |
+
+**使用示例：**
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.processing.hwid.getHWID;
+
+String Hwid_Str;
+Hwid_Str = getHWID.generateHWID();
+System.out.println("HWID: " + Hwid_Str);
+System.out.println("HWID length: " + Hwid_Str.length());
+ ```
+
 ## 构建
 
 ```bash
