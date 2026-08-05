@@ -1,7 +1,6 @@
 package top.gtb520.java.gnu.java.utils.library;
 
 import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
-import top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults;
 
 public interface main {
     // 压缩包操作相关接口与方法
@@ -42,8 +41,21 @@ public interface main {
 
     // 随机数生成接口与方法
     interface random {
+        // 默认随机数生成
         static int defaule(int start_scope, int end_scope) {
-            return defaults.random(start_scope, end_scope);
+            return top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults.random(start_scope, end_scope);
+        }
+
+        // 生成指定长度的随机字符串
+        static String randomString(int length) {
+            return top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults.randomString(length);
+        }
+    }
+
+    // 硬件信息获取接口与方法，HWID
+    interface hwid {
+        static String getHWID() {
+            return top.gtb520.java.gnu.java.utils.library.utils.processing.hwid.getHWID.generateHWID();
         }
     }
 }
