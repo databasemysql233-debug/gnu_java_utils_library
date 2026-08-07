@@ -37,6 +37,11 @@ public interface main {
         static void ColorHexPrintln(String Message, String ColorCode) {
             top.gtb520.java.gnu.java.utils.library.utils.print.echo.ColorHexPrintln(Message, ColorCode);
         }
+
+        // 在单行内打印多种颜色的文字，包含Minecraft格式代码的文本，仿照Minecraft类型的文本终端打印
+        static void ColorPrintlnPlus(String Message) {
+            top.gtb520.java.gnu.java.utils.library.utils.print.echo.ColorPrintlnPlus(Message);
+        }
     }
 
     // 随机数生成接口与方法

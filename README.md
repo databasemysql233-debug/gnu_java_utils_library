@@ -27,12 +27,12 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
 
 支持 **Tar.Gz** 和 **Zip** 两种压缩格式的压缩与解压操作，支持单文件和整个目录的递归处理。
 
-| 方法 | 说明 | 参数 |
-|------|------|------|
-| `compress.MakeTarGz(source, dest)` | 将文件或目录压缩为 `.tar.gz` | `source` 源路径，`dest` 压缩包输出路径 |
-| `compress.UnTarGz(source, dest)` | 解压 `.tar.gz` 到指定目录 | `source` 压缩包路径，`dest` 解压目标目录 |
-| `compress.MakeZip(source, dest)` | 将文件或目录压缩为 `.zip` | `source` 源路径，`dest` 压缩包输出路径 |
-| `compress.UnZip(source, dest)` | 解压 `.zip` 到指定目录 | `source` 压缩包路径，`dest` 解压目标目录 |
+| 方法                                 | 说明                  | 参数                           |
+|------------------------------------|---------------------|------------------------------|
+| `compress.MakeTarGz(source, dest)` | 将文件或目录压缩为 `.tar.gz` | `source` 源路径，`dest` 压缩包输出路径  |
+| `compress.UnTarGz(source, dest)`   | 解压 `.tar.gz` 到指定目录  | `source` 压缩包路径，`dest` 解压目标目录 |
+| `compress.MakeZip(source, dest)`   | 将文件或目录压缩为 `.zip`    | `source` 源路径，`dest` 压缩包输出路径  |
+| `compress.UnZip(source, dest)`     | 解压 `.zip` 到指定目录     | `source` 压缩包路径，`dest` 解压目标目录 |
 
 **使用示例：**
 
@@ -65,21 +65,21 @@ main.compress.TarGz(source, dest);
 
 基于 ANSI 转义序列，在终端中输出彩色文本。
 
-| 方法 | 说明 | 参数 |
-|------|------|------|
-| `echo.ColorPrintln(message, color)` | 使用预定义颜色打印 | `message` 文本内容，`color` 颜色枚举 |
+| 方法                                        | 说明               | 参数                                  |
+|-------------------------------------------|------------------|-------------------------------------|
+| `echo.ColorPrintln(message, color)`       | 使用预定义颜色打印        | `message` 文本内容，`color` 颜色枚举         |
 | `echo.ColorHexPrintln(message, hexColor)` | 使用自定义 ANSI 颜色码打印 | `message` 文本内容，`hexColor` ANSI 颜色代码 |
 
 **支持的颜色枚举 (`ColorNameEnum`)：**
 
-| 枚举值 | 颜色 |
-|--------|------|
-| `RED` | 红色 |
-| `GREEN` | 绿色 |
+| 枚举值      | 颜色 |
+|----------|----|
+| `RED`    | 红色 |
+| `GREEN`  | 绿色 |
 | `YELLOW` | 黄色 |
-| `BLUE` | 蓝色 |
+| `BLUE`   | 蓝色 |
 | `PURPLE` | 紫色 |
-| `CYAN` | 青色 |
+| `CYAN`   | 青色 |
 
 **使用示例：**
 
@@ -109,10 +109,10 @@ main.echo.ColorHexPrintln("自定义颜色", "31");
 
 随机生成器，提供生成随机字符串、数字、UUID 等功能。
 
-| 方法 | 说明 | 参数                              |
-|------|------|---------------------------------|
+| 方法                                                          | 说明           | 参数                                |
+|-------------------------------------------------------------|--------------|-----------------------------------|
 | `processing.random.defaults.random(start_scope, end_scope)` | 根据输入的范围生成随机数 | `start_scope` 起始数，`end_scope` 结束数 |
-| `processing.random.defaults.randomString(int length)` | 生成指定长度的随机字符串 | `length` 字符串长度 |
+| `processing.random.defaults.randomString(int length)`       | 生成指定长度的随机字符串 | `length` 字符串长度                    |
 
 **使用示例：**
 
@@ -127,9 +127,9 @@ defaults.randomString(10);
 
 HWID生成器，提供生成硬件ID的功能。
 
-| 方法                                                                                    | 说明     | 参数 |
-|---------------------------------------------------------------------------------------|--------|---|
-| `processing.hwid.getHWID.generateHWID()` | 生成HWID | 无 |
+| 方法                                       | 说明     | 参数 |
+|------------------------------------------|--------|----|
+| `processing.hwid.getHWID.generateHWID()` | 生成HWID | 无  |
 
 **使用示例：**
 
@@ -141,6 +141,26 @@ Hwid_Str = getHWID.generateHWID();
 System.out.println("HWID: " + Hwid_Str);
 System.out.println("HWID length: " + Hwid_Str.length());
  ```
+
+### 5. 终端颜色打印Plus（ColorPrintlnPlus）
+
+在单行内打印多种颜色的文字，包含Minecraft格式代码的文本
+
+| 方法                                 | 说明                   | 参数                          |
+|------------------------------------|----------------------|-----------------------------|
+| `ColorPrintlnPlus(String Message)` | 仿照Minecraft类型的文本终端打印 | `message` 待打印的文本，包含颜色与功能控制符 |
+
+**使用示例：**
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.print.echo;
+
+public class Main {
+    public static void main() {
+        echo.ColorPrintlnPlus("&dHello &2World&6!");
+    }
+}
+```
 
 ## 构建
 

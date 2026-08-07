@@ -11,6 +11,9 @@ public class echo {
         main.echo.Println("RED", ColorNameEnum.RED);
 
         ColorHexPrintlnTest();
+
+        System.out.println("111111111111111111");
+        main.echo.Println("头上带点绿，生活过得去", ColorNameEnum.GREEN);
     }
 
     static void ColorHexPrintlnTest() {
