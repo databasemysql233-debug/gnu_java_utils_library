@@ -225,7 +225,7 @@ mvn package
 
 ## 使用
 
-编译成功后，将 `target/gnu-java-utils-library-1.0-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
+编译成功后，将 `target/gnu-java-utils-library-1.2-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
 
 **pom.xml 引入本地依赖：**
 
