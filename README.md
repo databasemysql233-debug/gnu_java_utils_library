@@ -234,9 +234,9 @@ mvn package
     <dependency>
         <groupId>top.gtb520.java.gnu</groupId>
         <artifactId>gnu_java_utils_library</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.0-SNAPSHOT.jar</systemPath>
+        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.2-SNAPSHOT.jar</systemPath>
     </dependency>
 </dependencies>
 ```
