@@ -1,6 +1,6 @@
 # GNU Java Utils Library
 
-一个轻量级 Java 工具库，提供常用的压缩/解压与终端彩色输出功能等。
+一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、随机数生成、硬件标识等功能。
 
 ## 技术栈
 
@@ -12,27 +12,32 @@
 
 ```
 src/main/java/top/gtb520/java/gnu/java/utils/library/
-├── main.java                          # 统一入口接口
-├── utils/
-│   ├── compress/
-│   │   └── compress.java              # 压缩/解压工具类
-│   └── print/
-│       ├── echo.java                  # 终端彩色输出工具类
-│       └── ColorNameEnum.java         # 颜色名称枚举
+├── main.java                                    # 统一入口接口
+└── utils/
+    ├── compress/
+    │   └── compress.java                        # 压缩/解压工具类
+    ├── print/
+    │   ├── echo.java                            # 终端彩色输出工具类
+    │   └── ColorNameEnum.java                   # 颜色名称枚举
+    └── processing/
+        ├── random/
+        │   └── defaults.java                    # 随机数/字符串生成器
+        └── hwid/
+            └── getHWID.java                     # 硬件标识生成器
 ```
 
 ## 功能模块
 
 ### 1. 压缩/解压 (`compress`)
 
-支持 **Tar.Gz** 和 **Zip** 两种压缩格式的压缩与解压操作，支持单文件和整个目录的递归处理。
+支持 **Tar.Gz** 和 **Zip** 两种格式的压缩与解压，支持单文件和目录递归处理。
 
-| 方法                                 | 说明                  | 参数                           |
-|------------------------------------|---------------------|------------------------------|
-| `compress.MakeTarGz(source, dest)` | 将文件或目录压缩为 `.tar.gz` | `source` 源路径，`dest` 压缩包输出路径  |
-| `compress.UnTarGz(source, dest)`   | 解压 `.tar.gz` 到指定目录  | `source` 压缩包路径，`dest` 解压目标目录 |
-| `compress.MakeZip(source, dest)`   | 将文件或目录压缩为 `.zip`    | `source` 源路径，`dest` 压缩包输出路径  |
-| `compress.UnZip(source, dest)`     | 解压 `.zip` 到指定目录     | `source` 压缩包路径，`dest` 解压目标目录 |
+| 方法                                 | 说明                       | 参数                                  |
+|------------------------------------|--------------------------|-------------------------------------|
+| `compress.MakeTarGz(source, dest)` | 将文件或目录压缩为 `.tar.gz`    | `source` 源路径，`dest` 压缩包输出路径        |
+| `compress.UnTarGz(source, dest)`   | 解压 `.tar.gz` 到指定目录     | `source` 压缩包路径，`dest` 解压目标目录        |
+| `compress.MakeZip(source, dest)`   | 将文件或目录压缩为 `.zip`       | `source` 源路径，`dest` 压缩包输出路径        |
+| `compress.UnZip(source, dest)`     | 解压 `.zip` 到指定目录         | `source` 压缩包路径，`dest` 解压目标目录        |
 
 **使用示例：**
 
@@ -63,12 +68,15 @@ main.compress.TarGz(source, dest);
 
 ### 2. 终端彩色输出 (`echo`)
 
-基于 ANSI 转义序列，在终端中输出彩色文本。
+基于 ANSI 转义序列，在终端中输出彩色文本。提供三种打印方式：
 
-| 方法                                        | 说明               | 参数                                  |
-|-------------------------------------------|------------------|-------------------------------------|
-| `echo.ColorPrintln(message, color)`       | 使用预定义颜色打印        | `message` 文本内容，`color` 颜色枚举         |
-| `echo.ColorHexPrintln(message, hexColor)` | 使用自定义 ANSI 颜色码打印 | `message` 文本内容，`hexColor` ANSI 颜色代码 |
+#### 2.1 预定义颜色打印 — `ColorPrintln`
+
+使用颜色枚举快速输出。
+
+| 方法                                  | 说明          | 参数                             |
+|-------------------------------------|-------------|--------------------------------|
+| `echo.ColorPrintln(message, color)` | 使用预定义颜色打印   | `message` 文本，`color` 颜色枚举       |
 
 **支持的颜色枚举 (`ColorNameEnum`)：**
 
@@ -81,85 +89,126 @@ main.compress.TarGz(source, dest);
 | `PURPLE` | 紫色 |
 | `CYAN`   | 青色 |
 
-**使用示例：**
-
 ```java
 import top.gtb520.java.gnu.java.utils.library.utils.print.echo;
 import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
 
-// 使用预定义颜色
 echo.ColorPrintln("错误信息", ColorNameEnum.RED);
 echo.ColorPrintln("成功信息", ColorNameEnum.GREEN);
+```
 
-// 使用自定义 ANSI 颜色码
-echo.ColorHexPrintln("自定义橙色", "38;5;208");
+#### 2.2 自定义颜色打印 — `ColorHexPrintln`
+
+支持 `#RRGGBB`、`#RGB` 十六进制颜色及 ANSI 颜色代码。
+
+| 方法                                        | 说明               | 参数                                  |
+|-------------------------------------------|------------------|-------------------------------------|
+| `echo.ColorHexPrintln(message, hexColor)` | 使用自定义颜色码打印      | `message` 文本，`hexColor` 颜色代码       |
+
+**支持的颜色格式：**
+
+| 格式          | 示例          | 说明                     |
+|-------------|-------------|------------------------|
+| `#RRGGBB`   | `#FFC0CB`   | 十六进制真彩色，自动转 ANSI 序列   |
+| `#RGB`      | `#F0F`      | 十六进制简写，自动扩展后转 ANSI 序列 |
+| ANSI 颜色码   | `31`          | 标准 ANSI 颜色（如 31=红色）   |
+| ANSI 扩展色   | `38;5;208`  | 256 色扩展（如 208=橙色）     |
+
+```java
+// 十六进制颜色
+echo.ColorHexPrintln("粉色文本", "#FFC0CB");
+echo.ColorHexPrintln("简写青色", "#0FF");
+
+// ANSI 颜色码
+echo.ColorHexPrintln("红色文本", "31");
+echo.ColorHexPrintln("扩展橙色", "38;5;208");
+```
+
+#### 2.3 Minecraft 风格多色打印 — `ColorPrintlnPlus`
+
+在单行内使用 `&X` 格式码打印多种颜色和文本效果，仿照 Minecraft 格式化语法。
+
+| 方法                                 | 说明                    | 参数                          |
+|------------------------------------|-----------------------|-----------------------------|
+| `echo.ColorPrintlnPlus(message)` | 解析 `&X` 格式码后打印多色文本  | `message` 含格式码的文本           |
+
+**颜色代码：**
+
+| 代码   | 颜色     | 代码   | 颜色     |
+|------|--------|------|--------|
+| `&0` | 黑色     | `&8` | 深灰色    |
+| `&1` | 深蓝色    | `&9` | 浅蓝色    |
+| `&2` | 深绿色    | `&a` | 浅绿色    |
+| `&3` | 深青色    | `&b` | 浅青色    |
+| `&4` | 深红色    | `&c` | 浅红色    |
+| `&5` | 深紫色    | `&d` | 粉色     |
+| `&6` | 橙色     | `&e` | 黄色     |
+| `&7` | 灰色     | `&f` | 白色     |
+
+**格式代码：**
+
+| 代码   | 效果   | 代码   | 效果   |
+|------|------|------|------|
+| `&l` | 加粗   | `&k` | 乱码（随机字符替换） |
+| `&m` | 删除线  | `&r` | 重置   |
+| `&n` | 下划线  |      |      |
+| `&o` | 斜体   |      |      |
+
+> 格式码大小写不敏感，`&A` 与 `&a` 等效。非合法格式码（如 `&z`）将原样保留。
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.print.echo;
+
+// 多色文本
+echo.ColorPrintlnPlus("&6Welcome &2to &4Project");
+
+// 混合格式效果
+echo.ColorPrintlnPlus("&4&l粗体红色 &n&9下划线蓝色");
+
+// 乱码效果（每次调用生成不同随机字符）
+echo.ColorPrintlnPlus("&k这是一段乱码文字");
+
+// 重置后恢复普通文本
+echo.ColorPrintlnPlus("&4红色文字 &r普通文字");
 ```
 
 也可以通过统一入口 `main` 接口调用：
 
 ```java
 import top.gtb520.java.gnu.java.utils.library.main;
-import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
 
 main.echo.Println("警告信息", ColorNameEnum.YELLOW);
-main.echo.ColorHexPrintln("自定义颜色", "31");
+main.echo.ColorHexPrintln("自定义颜色", "#FF0000");
+main.echo.ColorPrintlnPlus("&a多色 &c文本");
 ```
 
 ### 3. 随机生成器 (`random`)
 
-随机生成器，提供生成随机字符串、数字、UUID 等功能。
-
-| 方法                                                          | 说明           | 参数                                |
-|-------------------------------------------------------------|--------------|-----------------------------------|
-| `processing.random.defaults.random(start_scope, end_scope)` | 根据输入的范围生成随机数 | `start_scope` 起始数，`end_scope` 结束数 |
-| `processing.random.defaults.randomString(int length)`       | 生成指定长度的随机字符串 | `length` 字符串长度                    |
-
-**使用示例：**
+| 方法                                          | 说明           | 参数                           |
+|---------------------------------------------|--------------|------------------------------|
+| `defaults.random(start_scope, end_scope)`   | 生成指定范围内的随机数  | `start_scope` 起始，`end_scope` 结束 |
+| `defaults.randomString(length)`             | 生成指定长度的随机字符串 | `length` 字符串长度               |
 
 ```java
-package top.gtb520.java.gnu.java.utils.library.utils.processing.random;
+import top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults;
 
-defaults.random(1, 100);
-defaults.randomString(10);
- ```
+int num = defaults.random(1, 100);          // 生成 1~100 的随机整数
+String str = defaults.randomString(16);     // 生成 16 位随机字符串（大小写字母+数字）
+```
 
-### 4. HWID生成
+### 4. 硬件标识生成器 (`hwid`)
 
-HWID生成器，提供生成硬件ID的功能。
+组合 CPU、主板、MAC 地址、硬盘序列号等信息，通过 SHA-256 生成唯一的硬件标识符（HWID）。支持 Windows、macOS、Linux 及 Android 平台。
 
-| 方法                                       | 说明     | 参数 |
-|------------------------------------------|--------|----|
-| `processing.hwid.getHWID.generateHWID()` | 生成HWID | 无  |
-
-**使用示例：**
+| 方法                     | 说明       | 参数 |
+|------------------------|----------|----|
+| `getHWID.generateHWID()` | 生成硬件标识符 | 无  |
 
 ```java
 import top.gtb520.java.gnu.java.utils.library.utils.processing.hwid.getHWID;
 
-String Hwid_Str;
-Hwid_Str = getHWID.generateHWID();
-System.out.println("HWID: " + Hwid_Str);
-System.out.println("HWID length: " + Hwid_Str.length());
- ```
-
-### 5. 终端颜色打印Plus（ColorPrintlnPlus）
-
-在单行内打印多种颜色的文字，包含Minecraft格式代码的文本
-
-| 方法                                 | 说明                   | 参数                          |
-|------------------------------------|----------------------|-----------------------------|
-| `ColorPrintlnPlus(String Message)` | 仿照Minecraft类型的文本终端打印 | `message` 待打印的文本，包含颜色与功能控制符 |
-
-**使用示例：**
-
-```java
-import top.gtb520.java.gnu.java.utils.library.utils.print.echo;
-
-public class Main {
-    public static void main() {
-        echo.ColorPrintlnPlus("&dHello &2World&6!");
-    }
-}
+String hwid = getHWID.generateHWID();
+System.out.println("HWID: " + hwid);
 ```
 
 ## 构建
@@ -167,34 +216,30 @@ public class Main {
 ```bash
 mvn compile
 ```
-或
+
+或打包为 JAR：
+
 ```bash
 mvn package
 ```
 
 ## 使用
-编译成功后，将 `target/gnu-java-utils-library-1.0.0.jar` 放入项目依赖中。</br>
-或者在releases中下载最新版jar包，放入项目依赖中。
 
-#### 使用示例：
+编译成功后，将 `target/gnu-java-utils-library-1.0-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
 
-**pom.xml**
+**pom.xml 引入本地依赖：**
+
 ```xml
 <dependencies>
-	<!-- 引入本地依赖，lib/gnu_java_utils_library-1.0-SNAPSHOT.jar -->
     <dependency>
         <groupId>top.gtb520.java.gnu</groupId>
         <artifactId>gnu_java_utils_library</artifactId>
         <version>1.0-SNAPSHOT</version>
         <scope>system</scope>
-		<!-- ${project.basedir} 为项目目录， /lib/ 为lib目录，xxxx.jar 依赖的Jar包-->
         <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.0-SNAPSHOT.jar</systemPath>
     </dependency>
 </dependencies>
 ```
-
-
-
 
 ## 异常处理
 
@@ -202,6 +247,10 @@ mvn package
 
 - **压缩时**：源路径不存在
 - **解压时**：目标路径不是有效的目录
+
+随机数方法在以下情况会抛出 `IllegalArgumentException`：
+
+- **起始值大于结束值时**
 
 ## 许可证
 
