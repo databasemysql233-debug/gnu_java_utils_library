@@ -2,6 +2,8 @@
 
 一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、随机数生成、硬件标识等功能。
 
+> *注：此项目/仓库已同步到Github（https://github.com/databasemysql233-debug/gnu_java_utils_library.git），原项目/仓库链接（https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git）*
+
 ## 技术栈
 
 - **Java 25**
