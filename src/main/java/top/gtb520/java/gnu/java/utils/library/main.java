@@ -81,4 +81,25 @@ public interface main {
             return top.gtb520.java.gnu.java.utils.library.version.OpenJDK_64Bit_Server_VM;
         }
     }
+
+    interface runtime {
+        static String getJarPath() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.getJarPath();
+        }
+        static String getJavaVersion() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaVersion();
+        }
+        static String getJavaRuntimeEnvironmentVersion() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaRuntimeEnvironmentVersion();
+        }
+        static String getJavaVMVersion() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaVMVersion();
+        }
+        static String getJavaBits() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaBits();
+        }
+        static String getJavaVMName() {
+            return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaVMName();
+        }
+    }
 }
