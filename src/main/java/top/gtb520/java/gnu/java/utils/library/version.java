@@ -7,4 +7,20 @@ public class version {
     public static final String OpenJDK_VERSION = "25.0.0.0.1";
     public static final String OpenJDK_Runtime_Environment = "25.0.0.0.1+36-GA";
     public static final String OpenJDK_64Bit_Server_VM = "25.0.0.0.1+36-GA";
+
+    public String GetVersion() {
+        return VERSION;
+    }
+    public String GetJavaVersion() {
+        return JAVA_VERSION;
+    }
+    public String GetOpenJDKVersion() {
+        return OpenJDK_VERSION;
+    }
+    public String GetOpenJDKRuntimeEnvironment() {
+        return OpenJDK_Runtime_Environment;
+    }
+    public String GetOpenJDK64BitServerVM() {
+        return OpenJDK_64Bit_Server_VM;
+    }
 }
