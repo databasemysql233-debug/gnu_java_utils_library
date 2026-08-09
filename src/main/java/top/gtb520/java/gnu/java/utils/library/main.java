@@ -63,4 +63,22 @@ public interface main {
             return top.gtb520.java.gnu.java.utils.library.utils.processing.hwid.getHWID.generateHWID();
         }
     }
+
+    interface version {
+        static String getVersion() {
+            return top.gtb520.java.gnu.java.utils.library.version.VERSION;
+        }
+        static String getJavaVersion() {
+            return top.gtb520.java.gnu.java.utils.library.version.JAVA_VERSION;
+        }
+        static String getOpenJDKVersion() {
+            return top.gtb520.java.gnu.java.utils.library.version.OpenJDK_VERSION;
+        }
+        static String getOpenJDKRuntimeEnvironment() {
+            return top.gtb520.java.gnu.java.utils.library.version.OpenJDK_Runtime_Environment;
+        }
+        static String getOpenJDK64BitServerVM() {
+            return top.gtb520.java.gnu.java.utils.library.version.OpenJDK_64Bit_Server_VM;
+        }
+    }
 }
