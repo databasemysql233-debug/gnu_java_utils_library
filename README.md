@@ -10,7 +10,7 @@
 - **Java 25**
 - **Maven** 构建
 - **Apache Commons Compress 1.28.0**（压缩功能依赖）
-- **JUnit Jupiter**（测试框架）
+- **JUnit Jupiter 5.13.0**（测试框架）
 
 ## 项目结构
 
@@ -241,9 +241,11 @@ System.out.println("Java版本: " + v.GetJavaVersion());
 ```java
 import top.gtb520.java.gnu.java.utils.library.main;
 
-main.version.getVersion();          // 项目版本
-main.version.getJavaVersion();      // Java 版本
-main.version.getOpenJDKVersion();   // OpenJDK 版本
+main.version.getVersion();                  // 项目版本
+main.version.getJavaVersion();              // Java 版本
+main.version.getOpenJDKVersion();           // OpenJDK 版本
+main.version.getOpenJDKRuntimeEnvironment();    // OpenJDK 运行时环境
+main.version.getOpenJDK64BitServerVM();         // OpenJDK 64-Bit Server VM
 ```
 
 ### 6. 运行时信息 (`runtime`)
@@ -252,9 +254,12 @@ main.version.getOpenJDKVersion();   // OpenJDK 版本
 
 **运行环境 (`RunEnv`)：**
 
-| 方法                  | 说明            |
-|---------------------|---------------|
-| `RunEnv.getJarPath()` | 获取当前运行的 JAR 路径 |
+| 方法                         | 说明                                       |
+|-------------------------------|------------------------------------------|
+| `RunEnv.getJarPath()`         | 获取当前运行的 JAR 路径                       |
+| `RunEnv.getTempDir()`         | 获取系统临时目录路径                             |
+| `RunEnv.newTempDir()`         | 在系统临时目录下新建时间戳子目录，返回路径；已存在则返回 `null` |
+| `RunEnv.newJarThisTempDir()`  | 在 JAR 所在目录下新建时间戳子目录，返回路径；已存在则返回 `null` |
 
 **Java 运行时环境 (`JavaRunTimeEnv`)：**
 
@@ -271,6 +276,9 @@ import top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv;
 import top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv;
 
 System.out.println("JAR路径: " + RunEnv.getJarPath());
+System.out.println("临时目录: " + RunEnv.getTempDir());
+System.out.println("新建临时目录: " + RunEnv.newTempDir());
+System.out.println("JAR目录临时子目录: " + RunEnv.newJarThisTempDir());
 System.out.println("Java版本: " + JavaRunTimeEnv.JavaVersion());
 System.out.println("JVM位数: " + JavaRunTimeEnv.JavaBits());
 ```
@@ -286,6 +294,12 @@ main.runtime.getJavaRuntimeEnvironmentVersion();    // 运行时环境版本
 main.runtime.getJavaVMVersion();                    // 虚拟机版本
 main.runtime.getJavaBits();                         // JDK 位数
 main.runtime.getJavaVMName();                       // 虚拟机名称
+
+// runtime.runenv 子接口
+main.runtime.runenv.getTempDir();                   // 系统临时目录
+main.runtime.runenv.newTempDir();                   // 新建临时目录
+main.runtime.runenv.newJarThisTempDir();            // JAR 目录下新建临时目录
+main.runtime.runenv.getJarThisTempDir();            // 同 newJarThisTempDir
 ```
 
 ## 构建
@@ -302,7 +316,7 @@ mvn package
 
 ## 使用
 
-编译成功后，将 `target/gnu-java-utils-library-1.2-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
+编译成功后，将 `target/gnu-java-utils-library-1.3-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
 
 **pom.xml 引入本地依赖：**
 
@@ -311,9 +325,9 @@ mvn package
     <dependency>
         <groupId>top.gtb520.java.gnu</groupId>
         <artifactId>gnu_java_utils_library</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.3-SNAPSHOT</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.2-SNAPSHOT.jar</systemPath>
+        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.3-SNAPSHOT.jar</systemPath>
     </dependency>
 </dependencies>
 ```
