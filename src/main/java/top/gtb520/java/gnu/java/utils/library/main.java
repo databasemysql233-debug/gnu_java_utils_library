@@ -103,5 +103,28 @@ public interface main {
         static String getJavaVMName() {
             return top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv.JavaVMName();
         }
+
+        // 运行时等相关方法与接口
+        interface runenv {
+            // 获取运行时临时目录
+            static String newJarThisTempDir() {
+                return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.newJarThisTempDir();
+            }
+
+            // 新建临时目录
+            static String newTempDir() {
+                return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.newTempDir();
+            }
+
+            // 获取临时目录
+            static String getTempDir() {
+                return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.getTempDir();
+            }
+
+            // 获取当前运行的JAR文件路径
+            static String getJarThisTempDir() {
+                return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.newJarThisTempDir();
+            }
+        }
     }
 }
