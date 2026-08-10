@@ -2,20 +2,22 @@
 
 一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、随机数生成、硬件标识等功能。
 
-*注：此项目/仓库已同步到Github：（ https://github.com/databasemysql233-debug/gnu_java_utils_library.git ）*
-*原项目/仓库链接：（ https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git ）*
+> 注：此项目/仓库已同步到 Github：[https://github.com/databasemysql233-debug/gnu_java_utils_library.git](https://github.com/databasemysql233-debug/gnu_java_utils_library.git)  
+> 原项目/仓库链接：[https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git](https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git)
 
 ## 技术栈
 
 - **Java 25**
 - **Maven** 构建
 - **Apache Commons Compress 1.28.0**（压缩功能依赖）
+- **JUnit Jupiter**（测试框架）
 
 ## 项目结构
 
 ```
 src/main/java/top/gtb520/java/gnu/java/utils/library/
 ├── main.java                                    # 统一入口接口
+├── version.java                                 # 项目版本信息
 └── utils/
     ├── compress/
     │   └── compress.java                        # 压缩/解压工具类
@@ -25,8 +27,11 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
     └── processing/
         ├── random/
         │   └── defaults.java                    # 随机数/字符串生成器
-        └── hwid/
-            └── getHWID.java                     # 硬件标识生成器
+        ├── hwid/
+        │   └── getHWID.java                     # 硬件标识生成器
+        └── runtime/
+            ├── RunEnv.java                      # 运行环境信息
+            └── JavaRunTimeEnv.java              # Java 运行时环境信息
 ```
 
 ## 功能模块
@@ -212,6 +217,75 @@ import top.gtb520.java.gnu.java.utils.library.utils.processing.hwid.getHWID;
 
 String hwid = getHWID.generateHWID();
 System.out.println("HWID: " + hwid);
+```
+
+### 5. 版本信息 (`version`)
+
+提供项目版本信息及编译时 Java/OpenJDK 版本常量。
+
+| 方法                         | 说明             |
+|----------------------------|----------------|
+| `version.GetVersion()`     | 获取项目版本号        |
+| `version.GetJavaVersion()` | 获取编译时 Java 版本  |
+
+```java
+import top.gtb520.java.gnu.java.utils.library.version;
+
+version v = new version();
+System.out.println("项目版本: " + v.GetVersion());
+System.out.println("Java版本: " + v.GetJavaVersion());
+```
+
+也可以通过统一入口调用：
+
+```java
+import top.gtb520.java.gnu.java.utils.library.main;
+
+main.version.getVersion();          // 项目版本
+main.version.getJavaVersion();      // Java 版本
+main.version.getOpenJDKVersion();   // OpenJDK 版本
+```
+
+### 6. 运行时信息 (`runtime`)
+
+获取当前 Java 运行时环境信息，包括 JAR 路径、JVM 版本、位数等。
+
+**运行环境 (`RunEnv`)：**
+
+| 方法                  | 说明            |
+|---------------------|---------------|
+| `RunEnv.getJarPath()` | 获取当前运行的 JAR 路径 |
+
+**Java 运行时环境 (`JavaRunTimeEnv`)：**
+
+| 方法                                     | 说明            |
+|----------------------------------------|---------------|
+| `JavaRunTimeEnv.JavaVersion()`         | Java 版本号      |
+| `JavaRunTimeEnv.JavaRuntimeEnvironmentVersion()` | 运行时环境版本号     |
+| `JavaRunTimeEnv.JavaVMVersion()`       | 虚拟机版本号        |
+| `JavaRunTimeEnv.JavaBits()`            | JDK 位数（如 64）  |
+| `JavaRunTimeEnv.JavaVMName()`          | 虚拟机名称         |
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv;
+import top.gtb520.java.gnu.java.utils.library.utils.runtime.JavaRunTimeEnv;
+
+System.out.println("JAR路径: " + RunEnv.getJarPath());
+System.out.println("Java版本: " + JavaRunTimeEnv.JavaVersion());
+System.out.println("JVM位数: " + JavaRunTimeEnv.JavaBits());
+```
+
+也可以通过统一入口调用：
+
+```java
+import top.gtb520.java.gnu.java.utils.library.main;
+
+main.runtime.getJarPath();                          // JAR 路径
+main.runtime.getJavaVersion();                      // Java 版本
+main.runtime.getJavaRuntimeEnvironmentVersion();    // 运行时环境版本
+main.runtime.getJavaVMVersion();                    // 虚拟机版本
+main.runtime.getJavaBits();                         // JDK 位数
+main.runtime.getJavaVMName();                       // 虚拟机名称
 ```
 
 ## 构建
