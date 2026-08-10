@@ -64,6 +64,7 @@ public interface main {
         }
     }
 
+    // 项目版本信息获取接口与方法
     interface version {
         static String getVersion() {
             return top.gtb520.java.gnu.java.utils.library.version.VERSION;
@@ -82,6 +83,7 @@ public interface main {
         }
     }
 
+    // 运行时信息获取接口与方法
     interface runtime {
         static String getJarPath() {
             return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.getJarPath();
