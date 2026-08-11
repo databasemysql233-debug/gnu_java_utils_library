@@ -2,6 +2,12 @@ package top.gtb520.java.gnu.java.utils.library;
 
 import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
 
+import java.io.File;
+import java.nio.file.Path;
+
+import static top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.BinFileType;
+
+
 public interface main {
     // 压缩包操作相关接口与方法
     interface compress {
@@ -124,6 +130,21 @@ public interface main {
             // 获取当前运行的JAR文件路径
             static String getJarThisTempDir() {
                 return top.gtb520.java.gnu.java.utils.library.utils.runtime.RunEnv.newJarThisTempDir();
+            }
+        }
+    }
+
+    // 文件操作接口与方法
+    interface file {
+        interface CreateFile {
+            // 创建文件，创建空白文件，异步IO
+            static File NewFile(String FileName, boolean isBin, BinFileType binFileType) {
+                return top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.NewFile(FileName, isBin, binFileType);
+            }
+
+            // 以字节流方式保存文件，异步IO
+            static boolean StreamSaveFile(File file, Path TargePath, String FileName) {
+                return top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.StreamSaveFile(file, TargePath, FileName);
             }
         }
     }
