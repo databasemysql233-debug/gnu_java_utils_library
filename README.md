@@ -1,6 +1,6 @@
 # GNU Java Utils Library
 
-一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、随机数生成、硬件标识等功能。
+一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、文件创建与管理、文件加密/解密、随机数生成、硬件标识等功能。
 
 > 注：此项目/仓库已同步到 Github：[https://github.com/databasemysql233-debug/gnu_java_utils_library.git](https://github.com/databasemysql233-debug/gnu_java_utils_library.git)  
 > 原项目/仓库链接：[https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git](https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git)
@@ -21,6 +21,9 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
 └── utils/
     ├── compress/
     │   └── compress.java                        # 压缩/解压工具类
+    ├── file/
+    │   ├── CreateFile.java                      # 文件创建/保存工具类
+    │   └── EncryptionAndDecryption.java         # 文件加密/解密工具类
     ├── print/
     │   ├── echo.java                            # 终端彩色输出工具类
     │   └── ColorNameEnum.java                   # 颜色名称枚举
@@ -190,7 +193,80 @@ main.echo.ColorHexPrintln("自定义颜色", "#FF0000");
 main.echo.ColorPrintlnPlus("&a多色 &c文本");
 ```
 
-### 3. 随机生成器 (`random`)
+### 3. 文件创建与保存 (`file/CreateFile`)
+
+支持创建普通/二进制文件，以及异步字节流文件保存。
+
+| 方法                                                    | 说明                                    | 参数                                                          |
+|-------------------------------------------------------|---------------------------------------|-------------------------------------------------------------|
+| `CreateFile.NewFile(FileName, isBin, binFileType)`    | 创建空白文件，二进制文件自动写入文件头                   | `FileName` 文件名，`isBin` 是否二进制，`binFileType` 二进制类型（普通文件传 `null`） |
+| `CreateFile.StreamSaveFile(file, TargePath, FileName)` | 以字节流方式异步保存文件到目标路径                    | `file` 源文件，`TargePath` 目标目录，`FileName` 保存的文件名             |
+
+**二进制文件类型 (`BinFileType`)：**
+
+| 枚举值   | 文件头标识           |
+|-------|----------------|
+| `ELF` | `7F 45 4C 46`  |
+| `PE`  | `4D 5A`        |
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile;
+import top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.BinFileType;
+import java.io.File;
+import java.nio.file.Path;
+
+// 创建普通空白文件
+File plainFile = CreateFile.NewFile("/path/to/file.txt", false, null);
+
+// 创建 ELF 二进制文件（自动写入 ELF 文件头）
+File elfFile = CreateFile.NewFile("/path/to/program", true, BinFileType.ELF);
+
+// 创建 PE 二进制文件（自动写入 MZ 文件头）
+File peFile = CreateFile.NewFile("/path/to/app.exe", true, BinFileType.PE);
+
+// 异步字节流保存文件
+boolean success = CreateFile.StreamSaveFile(sourceFile, Path.of("/path/to/dest"), "output.bin");
+```
+
+### 4. 文件加密/解密 (`file/EncryptionAndDecryption`)
+
+支持 **AES**、**DES** 对称加密，加密后覆盖原文件，密钥单独保存到指定目录。解密时从密钥文件读取密钥，解密后覆盖还原原文件。
+
+| 方法                                                             | 说明                       | 参数                                            |
+|----------------------------------------------------------------|--------------------------|-----------------------------------------------|
+| `EncryptionAndDecryption.EncryptionFile(file, type, keyPath)`  | 异步加密文件，覆盖原文件，密钥保存到 keyPath | `file` 文件，`type` 加密类型，`keyPath` 密钥目录路径     |
+| `EncryptionAndDecryption.DecryptionFile(file, type, keyfile)`  | 异步解密文件，覆盖还原原文件            | `file` 加密文件，`type` 加密类型，`keyfile` 密钥文件     |
+
+**加密类型 (`EncryptionType`)：**
+
+| 枚举值   | 算法                  | 密钥长度    |
+|-------|---------------------|---------|
+| `AES` | AES/ECB/PKCS5Padding | 128 bit |
+| `DES` | DES/ECB/PKCS5Padding | 56 bit  |
+| `RSA` | AES（对称替代）           | 128 bit |
+
+> 加密后密钥文件命名为 `原文件名.key`，保存在 `keyPath` 目录下。  
+> 加密/解密均覆盖写回原文件，不添加额外后缀。
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption;
+import top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionType;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Files;
+
+File file = new File("/path/to/data.txt");
+Path keyDir = Path.of("/path/to/keys");
+
+// 加密文件（密钥保存到 keyDir/data.txt.key）
+File encrypted = EncryptionAndDecryption.EncryptionFile(file, EncryptionType.AES, keyDir);
+
+// 解密文件（从密钥文件读取密钥）
+File keyFile = keyDir.resolve("data.txt.key").toFile();
+File decrypted = EncryptionAndDecryption.DecryptionFile(file, EncryptionType.AES, keyFile);
+```
+
+### 5. 随机生成器 (`random`)
 
 | 方法                                          | 说明           | 参数                           |
 |---------------------------------------------|--------------|------------------------------|
@@ -204,7 +280,7 @@ int num = defaults.random(1, 100);          // 生成 1~100 的随机整数
 String str = defaults.randomString(16);     // 生成 16 位随机字符串（大小写字母+数字）
 ```
 
-### 4. 硬件标识生成器 (`hwid`)
+### 6. 硬件标识生成器 (`hwid`)
 
 组合 CPU、主板、MAC 地址、硬盘序列号等信息，通过 SHA-256 生成唯一的硬件标识符（HWID）。支持 Windows、macOS、Linux 及 Android 平台。
 
@@ -219,7 +295,7 @@ String hwid = getHWID.generateHWID();
 System.out.println("HWID: " + hwid);
 ```
 
-### 5. 版本信息 (`version`)
+### 7. 版本信息 (`version`)
 
 提供项目版本信息及编译时 Java/OpenJDK 版本常量。
 
@@ -248,7 +324,7 @@ main.version.getOpenJDKRuntimeEnvironment();    // OpenJDK 运行时环境
 main.version.getOpenJDK64BitServerVM();         // OpenJDK 64-Bit Server VM
 ```
 
-### 6. 运行时信息 (`runtime`)
+### 8. 运行时信息 (`runtime`)
 
 获取当前 Java 运行时环境信息，包括 JAR 路径、JVM 版本、位数等。
 
@@ -316,7 +392,7 @@ mvn package
 
 ## 使用
 
-编译成功后，将 `target/gnu-java-utils-library-1.3-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
+编译成功后，将 `target/gnu-java-utils-library-1.4-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
 
 **pom.xml 引入本地依赖：**
 
@@ -325,9 +401,9 @@ mvn package
     <dependency>
         <groupId>top.gtb520.java.gnu</groupId>
         <artifactId>gnu_java_utils_library</artifactId>
-        <version>1.3-SNAPSHOT</version>
+        <version>1.4-SNAPSHOT</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.3-SNAPSHOT.jar</systemPath>
+        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.4-SNAPSHOT.jar</systemPath>
     </dependency>
 </dependencies>
 ```
