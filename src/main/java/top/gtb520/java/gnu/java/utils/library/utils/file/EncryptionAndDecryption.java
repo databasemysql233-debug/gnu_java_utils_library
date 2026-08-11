@@ -3,6 +3,7 @@ package top.gtb520.java.gnu.java.utils.library.utils.file;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -19,16 +20,21 @@ public class EncryptionAndDecryption {
     /***
      * 文件加密
      * 异步执行加密操作
-     * 加密后的文件保存为原文件名加 .enc 后缀，位于同目录下
+     * 加密后覆盖原文件，不添加额外后缀
+     * 密钥保存到 keyPath 目录下，密钥名为 原文件名.key
      *
      * @param file 文件
      * @param type 加密类型
-     * @return 加密后的文件，失败时返回 null
+     * @param keyPath 密钥文件目录路径，密钥名为 文件名.key
+     * @return 加密后的文件（原文件），失败时返回 null
      */
-    public static File EncryptionFile(File file, EncryptionType type) {
+    public static File EncryptionFile(File file, EncryptionType type, Path keyPath) {
         File TargetFile = null;
 
         if (file == null || !file.exists() || !file.isFile()) {
+            return null;
+        }
+        if (keyPath == null) {
             return null;
         }
 
@@ -42,18 +48,23 @@ public class EncryptionAndDecryption {
                     SecretKey secretKey = generateSecretKey(type);
                     byte[] encryptedBytes = encryptBytes(plainBytes, secretKey, type);
 
-                    // 写入加密后的文件，文件格式：[1字节密钥长度][密钥字节][加密数据]
-                    byte[] keyBytes = secretKey.getEncoded();
-                    String encryptedFileName = file.getName() + ".enc";
-                    File encryptedFile = new File(file.getParentFile(), encryptedFileName);
-                    try (OutputStream os = Files.newOutputStream(encryptedFile.toPath(),
+                    // 将密钥写入 keyPath 目录，密钥名为 文件名.key
+                    Files.createDirectories(keyPath);
+                    String keyFileName = file.getName() + ".key";
+                    Path keyFilePath = keyPath.resolve(keyFileName);
+                    try (OutputStream kos = Files.newOutputStream(keyFilePath,
                             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                        os.write(keyBytes.length);
-                        os.write(keyBytes);
+                        kos.write(secretKey.getEncoded());
+                        kos.flush();
+                    }
+
+                    // 加密后覆盖写回原文件
+                    try (OutputStream os = Files.newOutputStream(file.toPath(),
+                            StandardOpenOption.TRUNCATE_EXISTING)) {
                         os.write(encryptedBytes);
                         os.flush();
                     }
-                    return encryptedFile;
+                    return file;
                 } catch (Exception e) {
                     return null;
                 }
@@ -111,30 +122,28 @@ public class EncryptionAndDecryption {
     /***
      * 文件解密
      * 异步执行解密操作
-     * 解密后的文件去除 .enc 后缀，保存在同目录下
+     * 解密后覆盖写回原文件，不添加额外后缀
      *
-     * @param file 加密文件（.enc）
+     * @param file 加密文件
      * @param type 加密类型，须与加密时一致
-     * @return 解密后的文件，失败时返回 null
+     * @param keyfile 密钥文件，从中读取解密密钥
+     * @return 解密后的文件（原文件），失败时返回 null
      */
-    public static File DecryptionFile(File file, EncryptionType type) {
+    public static File DecryptionFile(File file, EncryptionType type, File keyfile) {
         File TargetFile = null;
 
         if (file == null || !file.exists() || !file.isFile()) {
+            return null;
+        }
+        if (keyfile == null || !keyfile.exists() || !keyfile.isFile()) {
             return null;
         }
 
         try {
             TargetFile = CompletableFuture.supplyAsync(() -> {
                 try {
-                    byte[] fileBytes = Files.readAllBytes(file.toPath());
-
-                    // 读取文件头中的密钥长度和密钥
-                    int keyLength = fileBytes[0] & 0xFF;
-                    byte[] keyBytes = new byte[keyLength];
-                    System.arraycopy(fileBytes, 1, keyBytes, 0, keyLength);
-
-                    // 还原密钥
+                    // 从密钥文件读取密钥
+                    byte[] keyBytes = Files.readAllBytes(keyfile.toPath());
                     String algorithm = switch (type) {
                         case AES -> "AES";
                         case DES -> "DES";
@@ -142,24 +151,19 @@ public class EncryptionAndDecryption {
                     };
                     SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, algorithm);
 
-                    // 提取加密数据部分
-                    byte[] encryptedBytes = new byte[fileBytes.length - 1 - keyLength];
-                    System.arraycopy(fileBytes, 1 + keyLength, encryptedBytes, 0, encryptedBytes.length);
+                    // 读取加密文件内容
+                    byte[] encryptedBytes = Files.readAllBytes(file.toPath());
 
+                    // 解密
                     byte[] decryptedBytes = decryptBytes(encryptedBytes, secretKey, type);
 
-                    // 生成解密后的文件名，去除 .enc 后缀
-                    String fileName = file.getName();
-                    String decryptedFileName = fileName.endsWith(".enc")
-                            ? fileName.substring(0, fileName.length() - 4)
-                            : fileName + ".dec";
-                    File decryptedFile = new File(file.getParentFile(), decryptedFileName);
-                    try (OutputStream os = Files.newOutputStream(decryptedFile.toPath(),
-                            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    // 解密后覆盖写回原文件
+                    try (OutputStream os = Files.newOutputStream(file.toPath(),
+                            StandardOpenOption.TRUNCATE_EXISTING)) {
                         os.write(decryptedBytes);
                         os.flush();
                     }
-                    return decryptedFile;
+                    return file;
                 } catch (Exception e) {
                     return null;
                 }
