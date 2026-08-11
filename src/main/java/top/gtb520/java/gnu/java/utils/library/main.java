@@ -6,6 +6,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.BinFileType;
+import static top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionType;
 
 
 public interface main {
@@ -146,6 +147,18 @@ public interface main {
             static boolean StreamSaveFile(File file, Path TargePath, String FileName) {
                 return top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.StreamSaveFile(file, TargePath, FileName);
             }
+        }
+    }
+
+    // 文件加解密操作
+    interface EncryptionAndDecryption {
+        // 文件加密
+        static File FileEncrypt(File file, EncryptionType type, Path keyPath) throws Exception {
+            return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionFile(file, type, keyPath);
+        }
+        // 文件解密
+        static File DecryptionFile(File file, EncryptionType type, File keyfile) throws Exception {
+            return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.DecryptionFile(file, type, keyfile);
         }
     }
 }
