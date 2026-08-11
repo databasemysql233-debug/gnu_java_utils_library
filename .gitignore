@@ -43,3 +43,4 @@ build/
 /.idea
 /.mvn
 /build_release
+/upload/
