@@ -148,17 +148,17 @@ public interface main {
                 return top.gtb520.java.gnu.java.utils.library.utils.file.CreateFile.StreamSaveFile(file, TargePath, FileName);
             }
         }
-    }
 
-    // 文件加解密操作
-    interface EncryptionAndDecryption {
-        // 文件加密
-        static File FileEncrypt(File file, EncryptionType type, Path keyPath) throws Exception {
-            return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionFile(file, type, keyPath);
-        }
-        // 文件解密
-        static File DecryptionFile(File file, EncryptionType type, File keyfile) throws Exception {
-            return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.DecryptionFile(file, type, keyfile);
+        // 文件加解密操作
+        interface EncryptionAndDecryption {
+            // 文件加密
+            static File FileEncrypt(File file, EncryptionType type, Path keyPath) throws Exception {
+                return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionFile(file, type, keyPath);
+            }
+            // 文件解密
+            static File DecryptionFile(File file, EncryptionType type, File keyfile) throws Exception {
+                return top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.DecryptionFile(file, type, keyfile);
+            }
         }
     }
 }
