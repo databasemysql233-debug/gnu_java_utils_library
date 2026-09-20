@@ -1,6 +1,7 @@
 package top.gtb520.java.gnu.java.utils.library;
 
 import top.gtb520.java.gnu.java.utils.library.utils.print.ColorNameEnum;
+import top.gtb520.java.gnu.java.utils.library.utils.compress.CompressPNG.PNGThreshold;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -30,6 +31,11 @@ public interface main {
         // 解压Zip压缩包
         static void UnZip(String sourceFilePanth, String destFilePanth) throws Exception {
             top.gtb520.java.gnu.java.utils.library.utils.compress.compress.UnZip(sourceFilePanth, destFilePanth);
+        }
+
+        // 压缩png图片
+        static File CompressPNG(File pngFile, PNGThreshold threshold) {
+            return top.gtb520.java.gnu.java.utils.library.utils.compress.CompressPNG.PNG(pngFile, threshold);
         }
     }
 
