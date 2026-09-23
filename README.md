@@ -422,5 +422,3 @@ mvn package
 ## 许可证
 
 Apache License 2.0
-
-禁止商业用途
