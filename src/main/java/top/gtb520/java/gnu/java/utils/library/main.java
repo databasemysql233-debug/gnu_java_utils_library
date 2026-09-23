@@ -60,7 +60,7 @@ public interface main {
     // 随机数生成接口与方法
     interface random {
         // 默认随机数生成
-        static int defaule(int start_scope, int end_scope) {
+        static int defaults(int start_scope, int end_scope) {
             return top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults.random(start_scope, end_scope);
         }
 
