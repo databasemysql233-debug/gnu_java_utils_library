@@ -1,6 +1,6 @@
 # GNU Java Utils Library
 
-一个轻量级 Java 工具库，提供压缩/解压、终端彩色输出、文件创建与管理、文件加密/解密、随机数生成、硬件标识等功能。
+一个轻量级 Java 工具库，提供压缩/解压、PNG 图片压缩、终端彩色输出、文件创建与管理、文件加密/解密、随机数生成、硬件标识等功能。
 
 > 注：此项目/仓库已同步到 Github：[https://github.com/databasemysql233-debug/gnu_java_utils_library.git](https://github.com/databasemysql233-debug/gnu_java_utils_library.git)  
 > 原项目/仓库链接：[https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git](https://git.opensource-studio.info/database-mysql/gnu_java_utils_library.git)
@@ -20,21 +20,22 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
 ├── version.java                                 # 项目版本信息
 └── utils/
     ├── compress/
-    │   └── compress.java                        # 压缩/解压工具类
+    │   ├── compress.java                        # 压缩/解压工具类（Tar.Gz、Zip）
+    │   └── CompressPNG.java                     # PNG 图片压缩工具类
     ├── file/
     │   ├── CreateFile.java                      # 文件创建/保存工具类
     │   └── EncryptionAndDecryption.java         # 文件加密/解密工具类
     ├── print/
     │   ├── echo.java                            # 终端彩色输出工具类
     │   └── ColorNameEnum.java                   # 颜色名称枚举
-    └── processing/
-        ├── random/
-        │   └── defaults.java                    # 随机数/字符串生成器
-        ├── hwid/
-        │   └── getHWID.java                     # 硬件标识生成器
-        └── runtime/
-            ├── RunEnv.java                      # 运行环境信息
-            └── JavaRunTimeEnv.java              # Java 运行时环境信息
+    ├── processing/
+    │   ├── hwid/
+    │   │   └── getHWID.java                     # 硬件标识生成器
+    │   └── random/
+    │       └── defaults.java                    # 随机数/字符串生成器
+    └── runtime/
+        ├── RunEnv.java                          # 运行环境信息
+        └── JavaRunTimeEnv.java                  # Java 运行时环境信息
 ```
 
 ## 功能模块
@@ -77,11 +78,47 @@ main.compress.UnTarGz(source, dest);
 main.compress.TarGz(source, dest);
 ```
 
-### 2. 终端彩色输出 (`echo`)
+### 2. PNG 图片压缩 (`CompressPNG`)
+
+支持 5 个等级的 PNG 图片压缩，压缩后覆盖原文件。
+
+| 方法                              | 说明                          | 参数                                  |
+|---------------------------------|-----------------------------|-------------------------------------|
+| `CompressPNG.PNG(pngFile, threshold)` | 压缩 PNG 图片，覆盖原文件并返回该文件 | `pngFile` PNG 文件，`threshold` 压缩阈值等级 |
+
+**压缩阈值等级 (`PNGThreshold`)：**
+
+| 枚举值        | 压缩质量  | 说明    |
+|------------|-------|-------|
+| `THRESHOLD_1` | 0.7   | 最低压缩  |
+| `THRESHOLD_2` | 0.5   | 较低压缩  |
+| `THRESHOLD_3` | 0.3   | 中等压缩  |
+| `THRESHOLD_4` | 0.1   | 较高压缩  |
+| `THRESHOLD_5` | 0.0   | 最高压缩  |
+
+```java
+import top.gtb520.java.gnu.java.utils.library.utils.compress.CompressPNG;
+import top.gtb520.java.gnu.java.utils.library.utils.compress.CompressPNG.PNGThreshold;
+import java.io.File;
+
+File pngFile = new File("/path/to/image.png");
+CompressPNG.PNG(pngFile, PNGThreshold.THRESHOLD_3);
+```
+
+也可以通过统一入口 `main` 接口调用：
+
+```java
+import top.gtb520.java.gnu.java.utils.library.main;
+import top.gtb520.java.gnu.java.utils.library.utils.compress.CompressPNG.PNGThreshold;
+
+main.compress.CompressPNG(new File("/path/to/image.png"), PNGThreshold.THRESHOLD_3);
+```
+
+### 3. 终端彩色输出 (`echo`)
 
 基于 ANSI 转义序列，在终端中输出彩色文本。提供三种打印方式：
 
-#### 2.1 预定义颜色打印 — `ColorPrintln`
+#### 3.1 预定义颜色打印 — `ColorPrintln`
 
 使用颜色枚举快速输出。
 
@@ -108,7 +145,7 @@ echo.ColorPrintln("错误信息", ColorNameEnum.RED);
 echo.ColorPrintln("成功信息", ColorNameEnum.GREEN);
 ```
 
-#### 2.2 自定义颜色打印 — `ColorHexPrintln`
+#### 3.2 自定义颜色打印 — `ColorHexPrintln`
 
 支持 `#RRGGBB`、`#RGB` 十六进制颜色及 ANSI 颜色代码。
 
@@ -135,7 +172,7 @@ echo.ColorHexPrintln("红色文本", "31");
 echo.ColorHexPrintln("扩展橙色", "38;5;208");
 ```
 
-#### 2.3 Minecraft 风格多色打印 — `ColorPrintlnPlus`
+#### 3.3 Minecraft 风格多色打印 — `ColorPrintlnPlus`
 
 在单行内使用 `&X` 格式码打印多种颜色和文本效果，仿照 Minecraft 格式化语法。
 
@@ -193,7 +230,7 @@ main.echo.ColorHexPrintln("自定义颜色", "#FF0000");
 main.echo.ColorPrintlnPlus("&a多色 &c文本");
 ```
 
-### 3. 文件创建与保存 (`file/CreateFile`)
+### 4. 文件创建与保存 (`file/CreateFile`)
 
 支持创建普通/二进制文件，以及异步字节流文件保存。
 
@@ -228,7 +265,7 @@ File peFile = CreateFile.NewFile("/path/to/app.exe", true, BinFileType.PE);
 boolean success = CreateFile.StreamSaveFile(sourceFile, Path.of("/path/to/dest"), "output.bin");
 ```
 
-### 4. 文件加密/解密 (`file/EncryptionAndDecryption`)
+### 5. 文件加密/解密 (`file/EncryptionAndDecryption`)
 
 支持 **AES**、**DES** 对称加密，加密后覆盖原文件，密钥单独保存到指定目录。解密时从密钥文件读取密钥，解密后覆盖还原原文件。
 
@@ -253,7 +290,6 @@ import top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption
 import top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption.EncryptionType;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Files;
 
 File file = new File("/path/to/data.txt");
 Path keyDir = Path.of("/path/to/keys");
@@ -266,7 +302,7 @@ File keyFile = keyDir.resolve("data.txt.key").toFile();
 File decrypted = EncryptionAndDecryption.DecryptionFile(file, EncryptionType.AES, keyFile);
 ```
 
-### 5. 随机生成器 (`random`)
+### 6. 随机生成器 (`random`)
 
 | 方法                                          | 说明           | 参数                           |
 |---------------------------------------------|--------------|------------------------------|
@@ -280,7 +316,7 @@ int num = defaults.random(1, 100);          // 生成 1~100 的随机整数
 String str = defaults.randomString(16);     // 生成 16 位随机字符串（大小写字母+数字）
 ```
 
-### 6. 硬件标识生成器 (`hwid`)
+### 7. 硬件标识生成器 (`hwid`)
 
 组合 CPU、主板、MAC 地址、硬盘序列号等信息，通过 SHA-256 生成唯一的硬件标识符（HWID）。支持 Windows、macOS、Linux 及 Android 平台。
 
@@ -295,7 +331,7 @@ String hwid = getHWID.generateHWID();
 System.out.println("HWID: " + hwid);
 ```
 
-### 7. 版本信息 (`version`)
+### 8. 版本信息 (`version`)
 
 提供项目版本信息及编译时 Java/OpenJDK 版本常量。
 
@@ -324,7 +360,7 @@ main.version.getOpenJDKRuntimeEnvironment();    // OpenJDK 运行时环境
 main.version.getOpenJDK64BitServerVM();         // OpenJDK 64-Bit Server VM
 ```
 
-### 8. 运行时信息 (`runtime`)
+### 9. 运行时信息 (`runtime`)
 
 获取当前 Java 运行时环境信息，包括 JAR 路径、JVM 版本、位数等。
 
