@@ -392,7 +392,7 @@ mvn package
 
 ## 使用
 
-编译成功后，将 `target/gnu-java-utils-library-1.6-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
+编译成功后，将 `target/gnu_java_utils_library-1.7-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
 
 **pom.xml 引入本地依赖：**
 
@@ -401,9 +401,9 @@ mvn package
     <dependency>
         <groupId>top.gtb520.java.gnu</groupId>
         <artifactId>gnu_java_utils_library</artifactId>
-        <version>1.6-SNAPSHOT</version>
+        <version>1.7-SNAPSHOT</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.6-SNAPSHOT.jar</systemPath>
+        <systemPath>${project.basedir}/lib/gnu_java_utils_library-1.7-SNAPSHOT.jar</systemPath>
     </dependency>
 </dependencies>
 ```
