@@ -44,3 +44,4 @@ build/
 /.mvn
 /build_release
 /upload/
+cp.txt
