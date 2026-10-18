@@ -41,7 +41,7 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
 
 ### 1. 压缩/解压 (`compress`)
 
-支持 **Tar.Gz** 和 **Zip** 两种格式的压缩与解压，支持单文件和目录递归处理。
+支持 **Tar.Gz** 和 **Zip** 两种格式的压缩与解压，支持单文件和目录递归处理；另提供 PNG 图片压缩。
 
 | 方法                                 | 说明                       | 参数                                  |
 |------------------------------------|--------------------------|-------------------------------------|
@@ -49,6 +49,10 @@ src/main/java/top/gtb520/java/gnu/java/utils/library/
 | `compress.UnTarGz(source, dest)`   | 解压 `.tar.gz` 到指定目录     | `source` 压缩包路径，`dest` 解压目标目录        |
 | `compress.MakeZip(source, dest)`   | 将文件或目录压缩为 `.zip`       | `source` 源路径，`dest` 压缩包输出路径        |
 | `compress.UnZip(source, dest)`     | 解压 `.zip` 到指定目录         | `source` 压缩包路径，`dest` 解压目标目录        |
+| `CompressPNG.PNG(pngFile, threshold)` | 压缩 PNG 图片，返回原文件 | `pngFile` PNG 文件，`threshold` 压缩阈值（1~5 档） |
+
+> **安全说明**：解压时会校验条目路径，压缩包内含 `../` 越界路径或符号/硬链接条目将抛出
+> `IllegalArgumentException`（防 Zip-Slip 攻击）。PNG 压缩采用临时文件 + 原子替换，写入失败不会损坏原图。
 
 **使用示例：**
 
@@ -195,12 +199,12 @@ main.echo.ColorPrintlnPlus("&a多色 &c文本");
 
 ### 3. 文件创建与保存 (`file/CreateFile`)
 
-支持创建普通/二进制文件，以及异步字节流文件保存。
+支持创建普通/二进制文件，以及字节流文件保存。
 
 | 方法                                                    | 说明                                    | 参数                                                          |
 |-------------------------------------------------------|---------------------------------------|-------------------------------------------------------------|
-| `CreateFile.NewFile(FileName, isBin, binFileType)`    | 创建空白文件，二进制文件自动写入文件头                   | `FileName` 文件名，`isBin` 是否二进制，`binFileType` 二进制类型（普通文件传 `null`） |
-| `CreateFile.StreamSaveFile(file, TargePath, FileName)` | 以字节流方式异步保存文件到目标路径                    | `file` 源文件，`TargePath` 目标目录，`FileName` 保存的文件名             |
+| `CreateFile.NewFile(FileName, isBin, binFileType)`    | 创建空白文件，二进制文件自动写入文件头；文件已存在时直接返回不覆盖                   | `FileName` 文件名，`isBin` 是否二进制，`binFileType` 二进制类型（普通文件传 `null`） |
+| `CreateFile.StreamSaveFile(file, TargePath, FileName)` | 以字节流方式保存文件到目标路径（覆盖同名文件）                    | `file` 源文件，`TargePath` 目标目录，`FileName` 保存的文件名             |
 
 **二进制文件类型 (`BinFileType`)：**
 
@@ -224,29 +228,32 @@ File elfFile = CreateFile.NewFile("/path/to/program", true, BinFileType.ELF);
 // 创建 PE 二进制文件（自动写入 MZ 文件头）
 File peFile = CreateFile.NewFile("/path/to/app.exe", true, BinFileType.PE);
 
-// 异步字节流保存文件
+// 字节流保存文件（覆盖同名文件）
 boolean success = CreateFile.StreamSaveFile(sourceFile, Path.of("/path/to/dest"), "output.bin");
 ```
 
 ### 4. 文件加密/解密 (`file/EncryptionAndDecryption`)
 
-支持 **AES**、**DES** 对称加密，加密后覆盖原文件，密钥单独保存到指定目录。解密时从密钥文件读取密钥，解密后覆盖还原原文件。
+支持 **AES**、**RSA** 加密与 **DES**（已废弃，仅兼容旧版本）解密，加密后覆盖原文件，密钥单独保存到指定目录。解密时从密钥文件读取密钥，解密后覆盖还原原文件。
 
 | 方法                                                             | 说明                       | 参数                                            |
 |----------------------------------------------------------------|--------------------------|-----------------------------------------------|
-| `EncryptionAndDecryption.EncryptionFile(file, type, keyPath)`  | 异步加密文件，覆盖原文件，密钥保存到 keyPath | `file` 文件，`type` 加密类型，`keyPath` 密钥目录路径     |
-| `EncryptionAndDecryption.DecryptionFile(file, type, keyfile)`  | 异步解密文件，覆盖还原原文件            | `file` 加密文件，`type` 加密类型，`keyfile` 密钥文件     |
+| `EncryptionAndDecryption.EncryptionFile(file, type, keyPath)`  | 加密文件，覆盖原文件，密钥保存到 keyPath | `file` 文件，`type` 加密类型，`keyPath` 密钥目录路径     |
+| `EncryptionAndDecryption.DecryptionFile(file, type, keyfile)`  | 解密文件，覆盖还原原文件            | `file` 加密文件，`type` 加密类型，`keyfile` 密钥文件     |
 
 **加密类型 (`EncryptionType`)：**
 
 | 枚举值   | 算法                  | 密钥长度    |
 |-------|---------------------|---------|
-| `AES` | AES/ECB/PKCS5Padding | 128 bit |
-| `DES` | DES/ECB/PKCS5Padding | 56 bit  |
-| `RSA` | AES（对称替代）           | 128 bit |
+| `AES` | AES-256/GCM（随机 IV + 认证标签） | 256 bit |
+| `RSA` | RSA-2048/OAEP 混合加密（RSA 包裹随机 AES-256 会话密钥，数据用 AES-GCM 加密） | 2048 bit |
+| `DES` | DES/ECB/PKCS5Padding（已废弃，不安全） | 56 bit  |
 
-> 加密后密钥文件命名为 `原文件名.key`，保存在 `keyPath` 目录下。  
-> 加密/解密均覆盖写回原文件，不添加额外后缀。
+> 加密后密钥文件命名为 `原文件名.key`，保存在 `keyPath` 目录下：AES/DES 保存原始密钥，RSA 保存 PKCS#8 私钥；
+> POSIX 系统上密钥文件权限自动限制为仅属主可读写。  
+> 加密/解密均为流式处理，支持大文件；先写临时文件、成功后原子替换原文件，中途失败不会损坏原数据。  
+> 入参非法（文件/密钥不存在或为 null）返回 `null`；加解密实际失败（密钥错误、密文损坏等）抛出 `RuntimeException`。  
+> 新代码请使用 `AES` 或 `RSA`，不要使用已废弃的 `DES`。
 
 ```java
 import top.gtb520.java.gnu.java.utils.library.utils.file.EncryptionAndDecryption;
@@ -276,9 +283,11 @@ File decrypted = EncryptionAndDecryption.DecryptionFile(file, EncryptionType.AES
 ```java
 import top.gtb520.java.gnu.java.utils.library.utils.processing.random.defaults;
 
-int num = defaults.random(1, 100);          // 生成 1~100 的随机整数
+int num = defaults.random(1, 100);          // 生成 1~100 的随机整数（包含两端）
 String str = defaults.randomString(16);     // 生成 16 位随机字符串（大小写字母+数字）
 ```
+
+> `random(start, end)` 结果包含两端；`randomString(length)` 的长度不能为负数，否则抛出 `IllegalArgumentException`。
 
 ### 6. 硬件标识生成器 (`hwid`)
 
@@ -295,6 +304,9 @@ String hwid = getHWID.generateHWID();
 System.out.println("HWID: " + hwid);
 ```
 
+> 单项硬件信息获取失败时自动跳过该组件（如无序列号的硬件）；全部失败时返回 `"UNKNOWN_HWID"`。
+> MAC 地址优先取非回环、非虚拟网卡，避免虚拟网卡导致 HWID 漂移。
+
 ### 7. 版本信息 (`version`)
 
 提供项目版本信息及编译时 Java/OpenJDK 版本常量。
@@ -303,6 +315,8 @@ System.out.println("HWID: " + hwid);
 |----------------------------|----------------|
 | `version.GetVersion()`     | 获取项目版本号        |
 | `version.GetJavaVersion()` | 获取编译时 Java 版本  |
+
+> `GetVersion()` 打包为 JAR 时读取 MANIFEST 中的 `Implementation-Version`，类路径运行（如测试）时回退到内置常量。
 
 ```java
 import top.gtb520.java.gnu.java.utils.library.version;
@@ -332,10 +346,10 @@ main.version.getOpenJDK64BitServerVM();         // OpenJDK 64-Bit Server VM
 
 | 方法                         | 说明                                       |
 |-------------------------------|------------------------------------------|
-| `RunEnv.getJarPath()`         | 获取当前运行的 JAR 路径                       |
+| `RunEnv.getJarPath()`         | 获取当前运行的 JAR 路径（非 JAR 运行时返回类路径目录）    |
 | `RunEnv.getTempDir()`         | 获取系统临时目录路径                             |
-| `RunEnv.newTempDir()`         | 在系统临时目录下新建时间戳子目录，返回路径；已存在则返回 `null` |
-| `RunEnv.newJarThisTempDir()`  | 在 JAR 所在目录下新建时间戳子目录，返回路径；已存在则返回 `null` |
+| `RunEnv.newTempDir()`         | 在系统临时目录下新建唯一临时子目录，返回路径；创建失败抛出 `RuntimeException` |
+| `RunEnv.newJarThisTempDir()`  | 在 JAR 所在目录下新建唯一临时子目录，返回路径；JAR 路径无父目录时返回 `null` |
 
 **Java 运行时环境 (`JavaRunTimeEnv`)：**
 
@@ -390,6 +404,16 @@ mvn compile
 mvn package
 ```
 
+## 测试
+
+项目使用 JUnit 5 编写测试（共 53 个用例），运行：
+
+```bash
+mvn test
+```
+
+测试覆盖压缩/解压往返、Zip-Slip 恶意压缩包防护、AES/DES/RSA 加解密往返（含 8MB 大文件流式测试与错误密钥不损坏密文）、随机数边界（含 `Integer.MAX_VALUE` 上界）、彩色输出格式叠加与注入防护、临时目录创建与 HWID 稳定性。
+
 ## 使用
 
 编译成功后，将 `target/gnu_java_utils_library-1.7-SNAPSHOT.jar` 放入项目依赖中，或在 Releases 中下载最新版 JAR 包。
@@ -414,10 +438,17 @@ mvn package
 
 - **压缩时**：源路径不存在
 - **解压时**：目标路径不是有效的目录
+- **解压时**：压缩包包含越界路径（如 `../`）或符号/硬链接条目（防 Zip-Slip 攻击）
 
 随机数方法在以下情况会抛出 `IllegalArgumentException`：
 
 - **起始值大于结束值时**
+- **随机字符串长度为负数时**
+
+加密/解密方法的错误约定：
+
+- **入参非法**（文件/密钥不存在或为 `null`）：返回 `null`
+- **加解密实际失败**（密钥错误、密文损坏等）：抛出 `RuntimeException`
 
 ## 许可证
 
