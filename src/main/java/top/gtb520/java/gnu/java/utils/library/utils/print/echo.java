@@ -12,17 +12,37 @@ public class echo {
     /**
      * 使用自定义颜色码在终端打印彩色文本
      * 支持三种格式：
-     *   - "#RRGGBB" 十六进制颜色（如 "#FFC0CB"）
+     *   - "#RRGGBB" / "#RGB" 十六进制颜色（如 "#FFC0CB"）
      *   - ANSI 颜色代码（如 "31" 表示红色）
      *   - ANSI 扩展色（如 "38;5;208" 表示扩展色）
      *
      * @param Message   要打印的文本内容
      * @param HexColor  颜色代码，支持 "#RRGGBB"、ANSI 颜色代码或扩展色
+     * @throws IllegalArgumentException 当颜色代码格式非法或为 null 时
      */
     public static void ColorHexPrintln(String Message, String HexColor) {
-        if (HexColor.startsWith("#") && (HexColor.length() == 7 || HexColor.length() == 4)) {
-            // #RRGGBB 或 #RGB 格式，转换为 ANSI 真彩色序列
-            String hex = HexColor.substring(1);
+        if (Message == null) {
+            Message = "";
+        }
+        String ansi = toAnsiColorCode(HexColor);
+        System.out.println("\033[" + ansi + "m" + Message + "\033[0m");
+    }
+
+    /**
+     * 将颜色代码转换为 ANSI 颜色序列中的参数部分，并对输入做合法性校验。
+     *
+     * @param hexColor 颜色代码："#RRGGBB"、"#RGB" 或纯数字/分号的 ANSI 参数
+     * @return ANSI 参数（如 "38;2;255;192;203"、"31"）
+     */
+    private static String toAnsiColorCode(String hexColor) {
+        if (hexColor == null) {
+            throw new IllegalArgumentException("颜色码不能为 null");
+        }
+        if (hexColor.startsWith("#")) {
+            String hex = hexColor.substring(1);
+            if ((hex.length() != 3 && hex.length() != 6) || !isHex(hex)) {
+                throw new IllegalArgumentException("无效的颜色格式: " + hexColor);
+            }
             int r, g, b;
             if (hex.length() == 3) {
                 // #RGB 简写格式，将每个字符扩展为两位（如 F -> FF）
@@ -34,20 +54,35 @@ public class echo {
                 g = Integer.parseInt(hex.substring(2, 4), 16);
                 b = Integer.parseInt(hex.substring(4, 6), 16);
             }
-            System.out.println("\033[38;2;" + r + ";" + g + ";" + b + "m" + Message + "\033[0m");
-        } else {
-            // 原有 ANSI 颜色代码直接拼接
-            System.out.println("\033[" + HexColor + "m" + Message + "\033[0m");
+            return "38;2;" + r + ";" + g + ";" + b;
         }
+        // 仅允许数字与分号，防止向终端注入任意转义序列
+        if (!hexColor.matches("[0-9]+(;[0-9]+)*")) {
+            throw new IllegalArgumentException("无效的ANSI颜色码: " + hexColor);
+        }
+        return hexColor;
+    }
+
+    private static boolean isHex(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (Character.digit(s.charAt(i), 16) < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * 使用预定义的颜色名称在终端打印彩色文本
      *
      * @param Message   要打印的文本内容
-     * @param ColorName 颜色名称，支持：RED、GREEN、YELLOW、BLUE、PURPLE、CYAN；传入不支持的名称则按默认颜色输出
+     * @param ColorName 颜色名称，支持：RED、GREEN、YELLOW、BLUE、PURPLE、CYAN；传入 null 则按默认颜色输出
      */
     public static void ColorPrintln(String Message, ColorNameEnum ColorName) {
+        if (ColorName == null) {
+            System.out.println(Message);
+            return;
+        }
         // 根据颜色名称映射对应的 ANSI 颜色转义序列
         switch (ColorName) {
             case RED:
@@ -76,7 +111,7 @@ public class echo {
 
     /**
      * 在单行内打印多种颜色的文字
-     * 
+     *
      * 颜色代码仿照Minecraft格式，如：
      * &4（红色）、&c（浅红色）、
      * &6（橙色）、&e（黄色）、
@@ -89,9 +124,12 @@ public class echo {
      * &l（加粗）、&n（下划线）、
      * &o（斜体）、&k（乱码）、
      * &m（删除线）、&r（重置）。
-     * 
+     *
+     * 颜色码会重置之前的格式；加粗/下划线/斜体/删除线等格式码互相叠加；
+     * 例如 &4&l 得到"粗体红色"，&n&9 得到"下划线蓝色"。
+     *
      * 示例：&6Welcome &2to &4Project
-     * 
+     *
      * @param Message 包含Minecraft格式代码的文本
      */
     public static void ColorPrintlnPlus(String Message) {
@@ -100,7 +138,9 @@ public class echo {
             return;
         }
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder(Message.length() + 32);
+        // 当前叠加的格式序列（加粗/下划线等），颜色码切换后需要重新应用
+        StringBuilder activeFormat = new StringBuilder();
         boolean obfuscated = false;
         int i = 0;
 
@@ -110,11 +150,26 @@ public class echo {
                 char code = Character.toLowerCase(Message.charAt(i + 1));
                 String ansi = getAnsiCode(code);
                 if (ansi != null) {
-                    // 先重置，再应用新格式（避免格式叠加冲突）
-                    result.append("\033[0m");
-                    result.append(ansi);
-                    // &k 开启乱码模式，其他颜色/格式码关闭乱码模式
-                    obfuscated = (code == 'k');
+                    if (isColorCode(code)) {
+                        // 颜色码：重置后应用新颜色，再恢复叠加的格式
+                        result.append("\033[0m").append(ansi).append(activeFormat);
+                        obfuscated = false;
+                    } else if (code == 'r') {
+                        // 重置：清空颜色与全部格式
+                        result.append("\033[0m");
+                        activeFormat.setLength(0);
+                        obfuscated = false;
+                    } else if (code == 'k') {
+                        // 乱码模式开启
+                        activeFormat.append(ansi);
+                        result.append(ansi);
+                        obfuscated = true;
+                    } else {
+                        // 加粗/下划线/斜体/删除线：格式叠加生效
+                        activeFormat.append(ansi);
+                        result.append(ansi);
+                        obfuscated = false;
+                    }
                     i += 2;
                     continue;
                 }
@@ -134,6 +189,13 @@ public class echo {
         // 结尾重置格式
         result.append("\033[0m");
         System.out.println(result.toString());
+    }
+
+    /**
+     * 是否为 Minecraft 颜色码（0-9、a-f）
+     */
+    private static boolean isColorCode(char code) {
+        return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f');
     }
 
     /**

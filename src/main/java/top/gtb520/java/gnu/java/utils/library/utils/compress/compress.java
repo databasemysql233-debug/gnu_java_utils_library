@@ -3,6 +3,7 @@ package top.gtb520.java.gnu.java.utils.library.utils.compress;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarConstants;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -34,6 +35,7 @@ public class compress {
         if (!Files.isDirectory(destPath)) {
             throw new IllegalArgumentException("目标路径必须是有效的目录");
         }
+        Path destRoot = destPath.toAbsolutePath().normalize();
 
         try (InputStream fileIn = Files.newInputStream(Paths.get(sourceFilePanth));
              BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
@@ -41,8 +43,12 @@ public class compress {
              TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
 
             TarArchiveEntry entry;
-            while ((entry = tarIn.getNextTarEntry()) != null) {
-                Path targetPath = destPath.resolve(entry.getName());
+            while ((entry = tarIn.getNextEntry()) != null) {
+                // 拒绝符号链接/硬链接条目，防止解压逃逸
+                if (entry.isSymbolicLink() || entry.getLinkFlag() == TarConstants.LF_LINK) {
+                    throw new IllegalArgumentException("压缩包包含不支持的链接条目: " + entry.getName());
+                }
+                Path targetPath = resolveInside(destRoot, entry.getName());
                 if (entry.isDirectory()) {
                     Files.createDirectories(targetPath);
                 } else {
@@ -51,6 +57,18 @@ public class compress {
                 }
             }
         }
+    }
+
+    /**
+     * 将压缩包条目名解析为解压目录内的路径；
+     * 条目越过目标目录（如 ../ 或绝对路径）时抛出 IllegalArgumentException。
+     */
+    private static Path resolveInside(Path destRoot, String entryName) {
+        Path targetPath = destRoot.resolve(entryName).normalize();
+        if (!targetPath.startsWith(destRoot)) {
+            throw new IllegalArgumentException("压缩包包含非法路径条目: " + entryName);
+        }
+        return targetPath;
     }
 
     /**
@@ -78,7 +96,7 @@ public class compress {
                     @Override
                     public java.nio.file.FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws java.io.IOException {
                         String entryName = sourcePath.relativize(file).toString().replace('\\', '/');
-                        TarArchiveEntry entry = new TarArchiveEntry(file.toFile(), entryName);
+                        TarArchiveEntry entry = new TarArchiveEntry(file, entryName);
                         tarOut.putArchiveEntry(entry);
                         Files.copy(file, tarOut);
                         tarOut.closeArchiveEntry();
@@ -97,7 +115,7 @@ public class compress {
                     }
                 });
             } else {
-                TarArchiveEntry entry = new TarArchiveEntry(sourcePath.toFile(), sourcePath.getFileName().toString());
+                TarArchiveEntry entry = new TarArchiveEntry(sourcePath, sourcePath.getFileName().toString());
                 tarOut.putArchiveEntry(entry);
                 Files.copy(sourcePath, tarOut);
                 tarOut.closeArchiveEntry();
@@ -166,14 +184,19 @@ public class compress {
         if (!Files.isDirectory(destPath)) {
             throw new IllegalArgumentException("目标路径必须是有效的目录");
         }
-    
+        Path destRoot = destPath.toAbsolutePath().normalize();
+
         try (InputStream fileIn = Files.newInputStream(Paths.get(sourceFilePanth));
              BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
              ZipArchiveInputStream zipIn = new ZipArchiveInputStream(bufferedIn)) {
-    
+
             ZipArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
-                Path targetPath = destPath.resolve(entry.getName());
+                // 拒绝符号链接条目，防止解压逃逸
+                if (entry.isUnixSymlink()) {
+                    throw new IllegalArgumentException("压缩包包含不支持的符号链接条目: " + entry.getName());
+                }
+                Path targetPath = resolveInside(destRoot, entry.getName());
                 if (entry.isDirectory()) {
                     Files.createDirectories(targetPath);
                 } else {
